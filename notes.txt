@@ -1,0 +1,75 @@
+Scripts in pyp.json can start with [venv] to specify the default venv to execute the command in.
+    Specifying the env or global before they run will overwrite it
+
+
+I want the following commands
+
+if no env (or global) is set, use default venv
+default requirements are installed for all environments (including global, if used)
+
+lock
+    install locked version of requirements
+
+setup
+    setup initial project structure
+    add .gitignore to it
+
+install 
+    install packages defined in pyp.json
+
+install ...packages
+    installs defined packages and updates the requirements for current env
+    if global, installs packages but does not update requirements
+
+remove
+    removes all packages from pyp.json from current venv
+    if global, only removes mentioned packages (not necessarily their requirements, for safety)
+
+remove ...packages
+    removes packages from current venv and updates pyp.json to remove them from venv or default requirements (where it occurs)
+
+cleanse
+    removes any installed packages that are not required by other packages and are not listed in pyp.json (default and current venv)
+        pip list --not-required
+        might want to list once, remove and the list again and remove (to remove base packages, and then their deps)
+    if global, extra confirm step is used
+
+purge
+    removes all installed packages
+    if global, extra confirm step is used
+
+reinstall
+    removes all installed packages from venv and reinstalls from pyp.json
+    if global, extra confirm step is used
+
+check-updates
+    lists all installed packages with updates in current venv
+
+update
+    performs pip install -U for all packages from pyp.json
+    updates requirements in pyp.json
+
+update --purge/-p
+    removes all packages from current venv
+    installs latest version of all requirements from pyp.json
+    updates requirements in pyp.json
+
+<scripts from pyp.json>
+run <scripts from pyp.json>
+    execute with "pyp script-name"
+    if script-name conflicts with already existing command, use "pyp run script-name"
+
+venv name
+    creates venv with name (ignores/errors if name is "default") 
+    updates pyp.json to add an entry for the venv
+
+venv --delete/-d name
+    deletes venv with name (ignores/errors if name is "default")
+    updates pyp.json to remove it
+
+# Might not be able to make shell/unshell work, as we cannot modify PATH of the terminal properly
+shell
+    updates path to use the venv bin first, essentially like "activate" from venv but from pyp
+
+unshell
+    updates path to remove venv path it (effectively disable venv)

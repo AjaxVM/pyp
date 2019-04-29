@@ -7,10 +7,9 @@ import venv
 
 from .errors import UserError
 
-PYP_FILES = [
-    'pyp.json',
-    'project.json'
-]
+PYP_FILE = 'pyp.json'
+
+# todo: just use pyp.json
 
 PYP_DIR = '.pyp'
 
@@ -25,7 +24,7 @@ DEFAULT_PROJECT_CONFIG = {
     'description': '',
     'version': '0.0.1',
     'license': None,
-    'requirements': [],
+    'requirements': [], # TODO: make a dict of name:version
     'scripts': {
         'start': 'python src/main.py',
         'test': '[test] python -m unittest discover'
@@ -46,20 +45,18 @@ class ProjectDef:
 
         self.definition = None
 
-    def _get_pyp_path(self):
-        for path in PYP_FILES:
-            if os.path.isfile(path):
-                return path
-        return None
-
     # interface
 
+    def ensure_pyp_file(self):
+        if not os.path.isfile(PYP_FILE):
+            raise UserError('pyp.json missing, please create one or execute "pyp setup"')
+
     def write_config(self, data):
-        pyp_path = self._get_pyp_path() or PYP_FILES[0]
+        self.ensure_pyp_file()
         data['requirements'] = sorted(data['requirements'])
         data['test_requirements'] = sorted(data['test_requirements'])
 
-        with open(pyp_path, 'w') as output:
+        with open(PYP_FILE, 'w') as output:
             output.write(json.dumps(data, indent=2))
 
     def write_lock(self):
@@ -95,12 +92,11 @@ class ProjectDef:
         self.write_config(self.definition)
 
     def setup(self, force=False):
-        pyp_path = self._get_pyp_path()
-        if pyp_path:
+        if os.path.isfile(PYP_FILE):
             if force:
-                os.unlink(pyp_path)
+                os.unlink(PYP_FILE)
             else:
-                raise UserError('Project configuration already present')
+                raise UserError('pyp.json already exists - overwrite with --force')
 
         # get user input
         pname = input(f'Project Name ({DEFAULT_PROJECT_CONFIG["name"]}): ')
@@ -125,13 +121,10 @@ class ProjectDef:
                     open(f, 'a').close()
 
     def load_config(self):
-        pyp_path = self._get_pyp_path()
-
-        if not pyp_path:
-            raise UserError('No project configuration file found')
+        self.ensure_pyp_file()
 
         try:
-            with open(pyp_path, 'r') as _file:
+            with open(PYP_FILE, 'r') as _file:
                 # TODO: consider json5 (using pyjson5 for speed)
                 proj_data = json.loads(_file.read())
         except:
@@ -156,16 +149,15 @@ class ProjectDef:
             os.path.mkdir(PYP_DIR)
 
     def is_dirty(self):
-        pyp_path = self._get_pyp_path()
-        if not pyp_path:
-            return False
+        self.ensure_pyp_file()
+
         if not self.have_pyp_dir():
             return True
         if not os.path.isfile(PYP_DIRTY_FILE):
             return True
 
         hasher = hashlib.md5()
-        with open(pyp_path, 'rb') as f:
+        with open(PYP_FILE, 'rb') as f:
             hasher.update(f.read().strip())
         inhash = hasher.hexdigest()
 
@@ -175,14 +167,12 @@ class ProjectDef:
         return inhash != outhash
 
     def update_dirty(self):
-        pyp_path = self._get_pyp_path()
-        if not pyp_path:
-            raise Exception('Could not update dirty, as we do not have a project configuration file')
+        self.ensure_pyp_file()
         
         self.ensure_pyp_dir()
 
         hasher = hashlib.md5()
-        with open(pyp_path, 'rb') as f:
+        with open(PYP_FILE, 'rb') as f:
             hasher.update(f.read().strip())
         data = hasher.hexdigest()
 

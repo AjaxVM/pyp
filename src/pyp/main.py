@@ -46,8 +46,6 @@ class Controller:
         self.env = opt.env
         self.run_global = opt.run_global
 
-        print('env: ', self.env, 'run_global: ', self.run_global)
-
         if opt._cmd_name:
             # self._run_command(opt)
             self.commands.run(opt._cmd_name, opt)

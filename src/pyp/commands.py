@@ -25,6 +25,7 @@ class Commands:
         arg_def.add_argument('-t', '--test', action='store_true', help='install for testing')
 
     def run(self, cmd, opt):
+        # todo - replace dashes in cmd with underscores
         try:
             getattr(self, f'run_{cmd}')(opt)
         except UserError as e:
