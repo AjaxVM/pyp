@@ -1,0 +1,17 @@
+{
+  "name": "my-project",
+  "description": "",
+  "version": "0.0.1",
+  "license": null,
+  "requirements": [],
+  "scripts": {
+    "start": "python src/main.py",
+    "test": "[test] python -m unittest discover"
+  },
+  "virtual_environments": [
+    {
+      "name": "test",
+      "requirements": []
+    }
+  ]
+}

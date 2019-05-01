@@ -4,25 +4,23 @@ import subprocess
 import sys
 
 from .commands import Commands
-from .errors import UserError
-from .project_def import ProjectDef
+from .lib.errors import UserError
+from .lib.project_def import ProjectDef
+from .lib.venv_manager import VenvManager
 
 
 class Controller:
 
     def __init__(self):
         self.project = ProjectDef(self)
+        self.venv = VenvManager(self)
 
-    #     self.cmds = {}
         self.cmd_def = argparse.ArgumentParser(
             description='Pyp project management tools (0.0.1)',
             prog='pyp'
         )
         self._set_root_commands()
         self.subcommands = self.cmd_def.add_subparsers(dest='_cmd_name', help='command to execute')
-
-        self.env = None # None uses default
-        self.run_global = False
         
         self.commands = Commands(self)
 
@@ -43,8 +41,8 @@ class Controller:
             print('Can not use -e and -g together')
             return
 
-        self.env = opt.env
-        self.run_global = opt.run_global
+        self.venv.target = opt.env
+        self.venv.run_global = opt.run_global
 
         if opt._cmd_name:
             # self._run_command(opt)

@@ -1,18 +1,32 @@
 Scripts in pyp.json can start with [venv] to specify the default venv to execute the command in.
     Specifying the env or global before they run will overwrite it
 
+Do we need to handle versions? Kind of prefer just storing version == and making the user aware when packages updates are available when they install or check
+
 
 I want the following commands
 
 if no env (or global) is set, use default venv
 default requirements are installed for all environments (including global, if used)
 
-lock
+# lock
+install --locked/-l
     install locked version of requirements
 
 setup
     setup initial project structure
     add .gitignore to it
+        nah, that makes too many assumptions
+    add a library switch to generate a library project file (with info for setuptools)
+        src/project-name dir
+    make sure project name is alphanumeric
+    alternatively, allow a setup.py to exist in folder, and provide library tools (from pyp-manager)
+        that allow for loading the project settings...
+    Use setup.cfg as much as possible?
+    Actually, new thought:
+        generate a setup.py with helper function to pull data from pyp.json and combine with more data in setup.py
+        then add that to the package build
+        also, support command to build setup.py, which users can modify, that is then copied instead of the base one
 
 install 
     install packages defined in pyp.json
@@ -66,6 +80,11 @@ venv name
 venv --delete/-d name
     deletes venv with name (ignores/errors if name is "default")
     updates pyp.json to remove it
+
+package
+    generate package distribution data (setuptools, etc.)
+    only if needed, maybe we can call setuptools manually, dunno
+    add "locked" switch to generate package requirements in a locked way (would this actually be recommended?)
 
 # Might not be able to make shell/unshell work, as we cannot modify PATH of the terminal properly
 shell
